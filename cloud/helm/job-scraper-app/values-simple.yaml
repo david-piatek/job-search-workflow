@@ -4,11 +4,11 @@ replicaCount:
 
 image:
   backend:
-    repository: registry.gitlab.com/YOUR_GITLAB_USER/search-work-workflow/backend
+    repository: registry.gitlab.com/dav.piatek/search-work-workflow/backend
     tag: latest
     pullPolicy: Always
   frontend:
-    repository: registry.gitlab.com/YOUR_GITLAB_USER/search-work-workflow/frontend
+    repository: registry.gitlab.com/dav.piatek/search-work-workflow/frontend
     tag: latest
     pullPolicy: Always
 

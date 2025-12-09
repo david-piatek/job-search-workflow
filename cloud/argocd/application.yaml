@@ -9,7 +9,7 @@ spec:
   project: default
   
   source:
-    repoURL: https://gitlab.com/YOUR_GITLAB_USER/search-work-workflow.git  # À MODIFIER
+    repoURL: https://gitlab.com/dav.piatek/search-work-workflow.git  # À MODIFIER
     targetRevision: HEAD
     path: cloud/helm/job-scraper-app
     helm:
