@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+    component: frontend
+spec:
+  replicas: {{ .Values.replicaCount.frontend }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        component: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: "{{ .Values.image.frontend.repository }}:{{ .Values.image.frontend.tag }}"
+        imagePullPolicy: {{ .Values.image.frontend.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.frontend.targetPort }}
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.healthCheck.frontend.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.healthCheck.frontend.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthCheck.frontend.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.healthCheck.frontend.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.healthCheck.frontend.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthCheck.frontend.periodSeconds }}
+        resources:
+          {{- toYaml .Values.resources.frontend | nindent 10 }}

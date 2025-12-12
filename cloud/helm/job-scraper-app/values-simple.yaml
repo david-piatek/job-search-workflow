@@ -1,0 +1,69 @@
+replicaCount:
+  backend: 1
+  frontend: 1
+
+image:
+  backend:
+    repository: registry.gitlab.com/dav.piatek/job-search-workflow/job-search-backend
+    pullPolicy: Always
+    tag: "main"
+  frontend:
+    repository: registry.gitlab.com/dav.piatek/job-search-workflow/job-search-frontend
+    pullPolicy: Always
+    tag: "main"
+
+service:
+  backend:
+    type: ClusterIP
+    port: 3001
+    targetPort: 3001
+  frontend:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: job-search.example.com
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend: backend
+        - path: /
+          pathType: Prefix
+          backend: frontend
+  tls: []
+
+resources:
+  backend:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  frontend:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 64Mi
+
+env:
+  backend:
+    NODE_ENV: production
+    PORT: "3001"
+
+healthCheck:
+  backend:
+    path: /health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  frontend:
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 10

@@ -38,3 +38,20 @@ When the ARGOCD_APP_NAME is changed to "job-search-workflow"
 And the ArgoCD application manifest name is updated
 And the Kubernetes namespace is updated to "job-search-workflow"
 Then the ArgoCD application name matches the project naming convention
+
+Scenario: Create Helm chart for Kubernetes deployment
+Given the application needs to be deployed on Kubernetes via ArgoCD
+When a Helm chart is created at cloud/helm/job-scraper-app
+Then the chart includes Chart.yaml with metadata
+And values-simple.yaml contains configuration for backend and frontend
+And templates include deployment and service manifests for both components
+And the chart is ready for ArgoCD synchronization
+
+Scenario: Deploy ArgoCD application
+Given the Helm chart exists at cloud/helm/job-scraper-app
+And the ArgoCD application manifest is at cloud/argocd/application.yaml
+When kubectl apply -f cloud/argocd/application.yaml is executed
+Then the ArgoCD application "job-search-workflow" is created
+And ArgoCD automatically syncs with the GitLab repository
+And Kubernetes resources are deployed to the "job-search-workflow" namespace
+And the application is accessible via the configured services
