@@ -60,7 +60,7 @@
     selectedCompany = company;
     loadingQr = true;
     const companyName = company.name || company.slug;
-    const qrUrl = `https://masuperurl.com/${company.slug}`;
+    const qrUrl = `https://job-search.draw-me-the-moon.fr/${company.slug}`;
 
     emailTemplate = `Objet: Candidature spontanée - [Votre poste souhaité]
 

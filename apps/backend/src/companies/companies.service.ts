@@ -2,8 +2,8 @@ import { Injectable, ConflictException, NotFoundException, Logger } from '@nestj
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JobOffer } from './entities/company.entity';
-import { CreateJobOfferDto } from './dto/create-company.dto';
-import { UpdateJobOfferDto } from './dto/update-company.dto';
+import { CreateCompanyDto } from './dto/create-company.dto';
+import { UpdateCompanyDto } from './dto/update-company.dto';
 import axios from 'axios';
 
 @Injectable()
@@ -17,37 +17,35 @@ export class CompaniesService {
     private readonly companyRepository: Repository<JobOffer>,
   ) {}
 
-  async create(createJobOfferDto: CreateJobOfferDto): Promise<JobOffer> {
+  async create(createCompanyDto: CreateCompanyDto): Promise<JobOffer> {
     // Vérifier les doublons
-    if (createJobOfferDto.name) {
+    if (createCompanyDto.name) {
       const existingByName = await this.companyRepository.findOne({
-        where: { name: createJobOfferDto.name },
+        where: { name: createCompanyDto.name },
       });
 
       if (existingByName) {
-        throw new ConflictException(
-          `Une offre avec le nom "${createJobOfferDto.name}" existe déjà`,
-        );
+        throw new ConflictException(`Une offre avec le nom "${createCompanyDto.name}" existe déjà`);
       }
     }
 
     const existingBySlug = await this.companyRepository.findOne({
-      where: { slug: createJobOfferDto.slug },
+      where: { slug: createCompanyDto.slug },
     });
 
     if (existingBySlug) {
-      throw new ConflictException(`Une offre avec le slug "${createJobOfferDto.slug}" existe déjà`);
+      throw new ConflictException(`Une offre avec le slug "${createCompanyDto.slug}" existe déjà`);
     }
 
     const existingByUrl = await this.companyRepository.findOne({
-      where: { url: createJobOfferDto.url },
+      where: { url: createCompanyDto.url },
     });
 
     if (existingByUrl) {
-      throw new ConflictException(`Une offre avec l'URL "${createJobOfferDto.url}" existe déjà`);
+      throw new ConflictException(`Une offre avec l'URL "${createCompanyDto.url}" existe déjà`);
     }
 
-    const company = this.companyRepository.create(createJobOfferDto);
+    const company = this.companyRepository.create(createCompanyDto);
     const savedJobOffer = await this.companyRepository.save(company);
 
     // Appeler le webhook n8n
@@ -96,20 +94,20 @@ export class CompaniesService {
     await this.companyRepository.remove(company);
   }
 
-  async update(id: string, updateJobOfferDto: UpdateJobOfferDto): Promise<JobOffer> {
+  async update(id: string, updateCompanyDto: UpdateCompanyDto): Promise<JobOffer> {
     const company = await this.findOne(id);
 
     // Mettre à jour les champs fournis
-    Object.assign(company, updateJobOfferDto);
+    Object.assign(company, updateCompanyDto);
 
     return await this.companyRepository.save(company);
   }
 
-  async updateBySlug(slug: string, updateJobOfferDto: UpdateJobOfferDto): Promise<JobOffer> {
+  async updateBySlug(slug: string, updateCompanyDto: UpdateCompanyDto): Promise<JobOffer> {
     const company = await this.findBySlug(slug);
 
     // Mettre à jour les champs fournis
-    Object.assign(company, updateJobOfferDto);
+    Object.assign(company, updateCompanyDto);
 
     return await this.companyRepository.save(company);
   }

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Delete, Patch } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
-import { CreateJobOfferDto } from './dto/create-company.dto';
-import { UpdateJobOfferDto } from './dto/update-company.dto';
+import { CreateCompanyDto } from './dto/create-company.dto';
+import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JobOffer } from './entities/company.entity';
 
 @Controller('companies')
@@ -9,8 +9,8 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
-  async create(@Body() createJobOfferDto: CreateJobOfferDto): Promise<JobOffer> {
-    return await this.companiesService.create(createJobOfferDto);
+  async create(@Body() createCompanyDto: CreateCompanyDto): Promise<JobOffer> {
+    return await this.companiesService.create(createCompanyDto);
   }
 
   @Get()
@@ -36,16 +36,16 @@ export class CompaniesController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateJobOfferDto: UpdateJobOfferDto,
+    @Body() updateCompanyDto: UpdateCompanyDto,
   ): Promise<JobOffer> {
-    return await this.companiesService.update(id, updateJobOfferDto);
+    return await this.companiesService.update(id, updateCompanyDto);
   }
 
   @Patch('by-slug/:slug')
   async updateBySlug(
     @Param('slug') slug: string,
-    @Body() updateJobOfferDto: UpdateJobOfferDto,
+    @Body() updateCompanyDto: UpdateCompanyDto,
   ): Promise<JobOffer> {
-    return await this.companiesService.updateBySlug(slug, updateJobOfferDto);
+    return await this.companiesService.updateBySlug(slug, updateCompanyDto);
   }
 }
