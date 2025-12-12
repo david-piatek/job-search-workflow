@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import puppeteer from 'puppeteer';
 
@@ -101,11 +101,7 @@ export class LetterService {
   private async generatePDF(htmlContent: string, outputPath: string): Promise<void> {
     const browser = await puppeteer.launch({
       headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-      ],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
     });
 
     try {
