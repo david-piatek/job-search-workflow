@@ -21,9 +21,11 @@ jobs:
         with:
           fetch-depth: 0  # Full history for proper sync
 
-      - name: Push to GitLab
-        uses: saderi/push-to-gitlab@v1
-        with:
-          gitlab_repository: 'gitlab.com/dav.piatek/job-search-workflow'
-          gitlab_token: ${{ secrets.GITLAB_TOKEN }}
-          force: true
+      - name: Force Push to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add gitlab https://oauth2:${GITLAB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow.git
+          git push gitlab main --force
