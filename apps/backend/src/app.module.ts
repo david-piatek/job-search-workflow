@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BullModule } from '@nestjs/bull';
-import { ScrapersModule } from './scrapers/scrapers.module';
-import { JobsModule } from './jobs/jobs.module';
 import { GeneratorsModule } from './generators/generators.module';
-import { WorkflowModule } from './workflow/workflow.module';
 import { HostingModule } from './hosting/hosting.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -19,17 +16,9 @@ import { HostingModule } from './hosting/hosting.module';
       autoLoadEntities: true,
       synchronize: true, // Disable in production
     }),
-    BullModule.forRoot({
-      redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-      },
-    }),
-    ScrapersModule,
-    JobsModule,
     GeneratorsModule,
-    WorkflowModule,
     HostingModule,
+    CompaniesModule,
   ],
 })
 export class AppModule {}

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+export const API_BASE_URL = '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -18,6 +18,7 @@ export const scrapersApi = {
 };
 
 export const jobsApi = {
+  create: (data) => api.post('/jobs', data),
   getAll: (source, limit = 100) => api.get('/jobs', { params: { source, limit } }),
   getById: (id) => api.get(`/jobs/${id}`),
   getStats: () => api.get('/jobs/stats'),

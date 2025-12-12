@@ -28,7 +28,7 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 # Copy package files
-COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/package.json /app/pnpm-workspace.yaml /app/pnpm-lock.yaml ./
 COPY --from=builder /app/apps/backend/package.json ./apps/backend/
 
 # Install production dependencies only

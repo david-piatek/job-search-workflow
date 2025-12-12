@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: job-scraper-hello-world
+  name: job-search
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  
+
   source:
-    repoURL: https://gitlab.com/dav.piatek/search-work-workflow.git  # À MODIFIER
+    repoURL: https://gitlab.com/dav.piatek/job-search-workflow.git
     targetRevision: HEAD
     path: cloud/helm/job-scraper-app
     helm:
@@ -17,13 +17,13 @@ spec:
         - values-simple.yaml
       parameters:
         - name: image.backend.tag
-          value: latest
+          value: main
         - name: image.frontend.tag
-          value: latest
-  
+          value: main
+
   destination:
     server: https://kubernetes.default.svc
-    namespace: job-scraper
+    namespace: job-search
   
   syncPolicy:
     automated:

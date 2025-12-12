@@ -1,34 +1,41 @@
 import { NestFactory } from '@nestjs/core';
-import { Controller, Get, Module } from '@nestjs/common';
-
-@Controller()
-class AppController {
-  @Get()
-  getHello(): string {
-    return 'Hello World from Backend!';
-  }
-
-  @Get('api/hello')
-  getApiHello(): any {
-    return {
-      message: 'Hello from API!',
-      timestamp: new Date().toISOString(),
-      status: 'OK',
-    };
-  }
-}
-
-@Module({
-  controllers: [AppController],
-})
-class AppModule {}
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors(); // Important pour le frontend
-  await app.listen(3001);
-  console.log('🚀 Backend Hello World running on http://localhost:3001');
-  console.log('📡 API endpoint: http://localhost:3001/api/hello');
+
+  // Enable CORS
+  app.enableCors();
+
+  // Global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // API prefix
+  app.setGlobalPrefix('api');
+
+  // Swagger documentation
+  const config = new DocumentBuilder()
+    .setTitle('Job Scraper API')
+    .setDescription('API for job scraping and workflow automation')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+
+  console.log('🚀 Backend running on http://localhost:' + port);
+  console.log('📡 API: http://localhost:' + port + '/api');
+  console.log('📚 Swagger: http://localhost:' + port + '/api');
 }
 
 bootstrap();
