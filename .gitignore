@@ -41,7 +41,8 @@ playwright-report/
 # Data storage
 data/
 scraped-data/
-*.json
+/scraped-data.json
+/data.json
 
 # Docker
 .docker/
