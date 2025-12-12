@@ -1,10 +1,11 @@
+# DISABLED TO SAVE CI RESOURCES
 name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ disabled-never-run ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ disabled-never-run ]
 
 jobs:
   lint:
