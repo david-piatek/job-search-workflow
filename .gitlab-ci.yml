@@ -9,7 +9,7 @@ stages:
 variables:
   DOCKER_REGISTRY: registry.gitlab.com/dav.piatek/job-search-workflow
   ARGOCD_SERVER: argocd.draw-me-the-moon.fr
-  ARGOCD_APP_NAME: job-search
+  ARGOCD_APP_NAME: job-search-workflow
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_DRIVER: overlay2
 

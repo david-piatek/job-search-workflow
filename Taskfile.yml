@@ -18,7 +18,7 @@ tasks:
     desc: Start development servers (frontend + backend)
     deps: [install]
     cmds:
-      - docker compose -f cloud/docker/compose.yaml up -d postgres redis
+      - docker compose -f cloud/docker/compose-simple.yaml up -d postgres redis
       - pnpm --filter backend dev &
       - pnpm --filter frontend dev
 
@@ -96,22 +96,22 @@ tasks:
   docker:build:
     desc: Build Docker images
     cmds:
-      - docker compose -f cloud/docker/compose.yaml build
+      - docker compose -f cloud/docker/compose-simple.yaml build
 
   docker:up:
     desc: Start all services with Docker Compose
     cmds:
-      - docker compose -f cloud/docker/compose.yaml up -d
+      - docker compose -f cloud/docker/compose-simple.yaml up -d
 
   docker:down:
     desc: Stop all Docker services
     cmds:
-      - docker compose -f cloud/docker/compose.yaml down
+      - docker compose -f cloud/docker/compose-simple.yaml down
 
   docker:logs:
     desc: Show Docker logs
     cmds:
-      - docker compose -f cloud/docker/compose.yaml logs -f
+      - docker compose -f cloud/docker/compose-simple.yaml logs -f
 
   helm:package:
     desc: Package Helm chart
@@ -183,17 +183,6 @@ tasks:
       - mkdir -p output
       - node src/index.js -t {{.TEMPLATE}} -d {{.DATA}} -o {{.OUTPUT}}
 
-  letter:docker:build:
-    desc: Build letter-generator Docker image
-    cmds:
-      - docker build -t letter-generator -f cloud/docker/Dockerfile.letter-generator .
-
-  letter:docker:run:
-    desc: Generate letter using Docker
-    cmds:
-      - mkdir -p apps/letter-generator/output
-      - docker run --rm -v $(pwd)/apps/letter-generator/output:/app/output letter-generator -t /app/templates/letter-template.html -d /app/templates/example-data.json -o /app/output/letter.pdf
-      - echo "Letter generated at apps/letter-generator/output/letter.pdf"
 
   qr:install:
     desc: Install QR generator dependencies
@@ -219,16 +208,6 @@ tasks:
       - node src/index.js elegant -d "{{.URL}}" -o output/elegant-qr.png
       - echo "Elegant QR code generated at apps/qr-generator/output/elegant-qr.png"
 
-  qr:docker:build:
-    desc: Build QR generator Docker image
-    cmds:
-      - docker build -t qr-generator -f cloud/docker/Dockerfile.qr-generator .
-
-  qr:docker:run:
-    desc: Generate QR code using Docker
-    cmds:
-      - mkdir -p apps/qr-generator/output
-      - docker run --rm -v $(pwd)/apps/qr-generator/output:/app/output qr-generator generate -d "{{.URL}}" -o /app/output/qr-docker.png
 
   site:install:
     desc: Install static site generator dependencies

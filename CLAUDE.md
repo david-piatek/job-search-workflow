@@ -23,3 +23,18 @@ And the Container Registry requires the full project path
 When the REGISTRY variable is set to "registry.gitlab.com/dav.piatek/job-search-workflow"
 Then Docker images can be pushed successfully to the GitLab Container Registry
 And the registry path matches the project structure
+
+Scenario: Clean up cloud/docker directory
+Given the cloud/docker directory contains multiple duplicate and obsolete files
+When obsolete Docker files are removed
+Then only the actively used files remain: Dockerfile.backend-simple, Dockerfile.frontend-simple, compose-simple.yaml, and docker-bake.hcl
+And all references in .github/workflows/ci.yml and Taskfile.yml are updated to use -simple versions
+And Docker-specific tasks for letter-generator and qr-generator are removed
+
+Scenario: Rename ArgoCD application to match project name
+Given the ArgoCD application name is "job-search"
+And the project is named "job-search-workflow"
+When the ARGOCD_APP_NAME is changed to "job-search-workflow"
+And the ArgoCD application manifest name is updated
+And the Kubernetes namespace is updated to "job-search-workflow"
+Then the ArgoCD application name matches the project naming convention

@@ -183,7 +183,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: cloud/docker/Dockerfile.backend
+          file: cloud/docker/Dockerfile.backend-simple
           push: false
           tags: job-scraper-backend:${{ github.sha }}
           cache-from: type=gha
@@ -193,7 +193,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: cloud/docker/Dockerfile.frontend
+          file: cloud/docker/Dockerfile.frontend-simple
           push: false
           tags: job-scraper-frontend:${{ github.sha }}
           cache-from: type=gha
