@@ -111,4 +111,27 @@ export class CompaniesService {
 
     return await this.companyRepository.save(company);
   }
+
+  async upsert(createCompanyDto: CreateCompanyDto): Promise<JobOffer> {
+    // Chercher l'offre existante par slug
+    const existingOffer = await this.companyRepository.findOne({
+      where: { slug: createCompanyDto.slug },
+    });
+
+    if (existingOffer) {
+      // Mettre à jour l'offre existante
+      this.logger.log(`Mise à jour de l'offre existante: ${existingOffer.id}`);
+      Object.assign(existingOffer, createCompanyDto);
+      const updatedOffer = await this.companyRepository.save(existingOffer);
+
+      // Appeler le webhook pour l'offre mise à jour
+      await this.callWebhook(updatedOffer);
+
+      return updatedOffer;
+    } else {
+      // Créer une nouvelle offre (utilise la logique create existante avec webhook)
+      this.logger.log(`Création d'une nouvelle offre: ${createCompanyDto.slug}`);
+      return await this.create(createCompanyDto);
+    }
+  }
 }

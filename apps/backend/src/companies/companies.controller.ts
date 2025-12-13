@@ -48,4 +48,9 @@ export class CompaniesController {
   ): Promise<JobOffer> {
     return await this.companiesService.updateBySlug(slug, updateCompanyDto);
   }
+
+  @Post('upsert')
+  async upsert(@Body() createCompanyDto: CreateCompanyDto): Promise<JobOffer> {
+    return await this.companiesService.upsert(createCompanyDto);
+  }
 }
