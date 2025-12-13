@@ -2,24 +2,54 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-RUN npm install -g pnpm
+# Install pnpm (cached layer - changes rarely)
+RUN npm install -g pnpm@latest
 
+# Copy dependency files only (cached layer - changes when deps change)
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY apps/frontend/package.json ./apps/frontend/
+COPY apps/frontend/package.json ./apps/frontend/package.json
 
-RUN pnpm install --frozen-lockfile
+# Install dependencies with cache mount (speeds up reinstalls)
+RUN --mount=type=cache,id=pnpm-frontend,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prefer-offline
 
-COPY apps/frontend ./apps/frontend
+# Copy source code (changes frequently - should be last)
+COPY apps/frontend/src ./apps/frontend/src
+COPY apps/frontend/public ./apps/frontend/public
+COPY apps/frontend/*.config.* ./apps/frontend/
+COPY apps/frontend/index.html ./apps/frontend/
+COPY apps/frontend/tsconfig*.json ./apps/frontend/
 
+# Build application
 WORKDIR /app/apps/frontend
-RUN pnpm build
+RUN pnpm build && \
+    rm -rf src node_modules
 
-FROM nginx:alpine
+# Production stage
+FROM nginx:alpine AS production
 
+# Install tini for proper signal handling
+RUN apk add --no-cache tini && \
+    rm -rf /var/cache/apk/*
+
+# Copy built static files
 COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html
 
+# Copy nginx configuration
 COPY apps/frontend/nginx-simple.conf /etc/nginx/conf.d/default.conf
 
+# Create non-root user
+RUN addgroup -g 101 -S nginx && \
+    adduser -S nginx -u 101 -G nginx && \
+    chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run && \
+    chmod -R 755 /usr/share/nginx/html
+
+# Switch to non-root user
+USER nginx
+
 EXPOSE 80
+
+# Use tini for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
 
 CMD ["nginx", "-g", "daemon off;"]

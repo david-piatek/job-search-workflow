@@ -55,3 +55,13 @@ Then the ArgoCD application "job-search-workflow" is created
 And ArgoCD automatically syncs with the GitLab repository
 And Kubernetes resources are deployed to the "job-search-workflow" namespace
 And the application is accessible via the configured services
+
+Scenario: Optimize Docker layers for maximum CI cache efficiency
+Given the Dockerfiles need to build quickly in CI pipelines
+When layer ordering is optimized from least to most frequently changing
+And BuildKit cache mounts are used for pnpm store
+And .dockerignore excludes unnecessary files
+Then pnpm dependencies are cached and reused between builds
+And only changed source code triggers new builds
+And build times are minimized in CI
+And image sizes are reduced with multi-stage builds and cleanup
