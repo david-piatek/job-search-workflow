@@ -112,3 +112,13 @@ And ArgoCD detects the Git change and automatically syncs the new deployment
 Then ArgoCD automatically deploys new images without manual kubectl rollout restart
 And each deployment uses a unique immutable image tag based on the commit SHA
 And no manual token configuration is required as CI_JOB_TOKEN is automatically provided
+
+Scenario: Setup Storybook for frontend component documentation and testing
+Given the frontend uses Svelte components that need isolated development and documentation
+When Storybook is configured with @storybook/svelte and @storybook/sveltekit
+And story files are created for each component in apps/frontend/src/components/\*.stories.js
+And stories demonstrate different states including default, loading, error, and edge cases
+And mock data is provided for components that fetch from APIs
+Then developers can run "pnpm storybook" in apps/frontend to view components in isolation
+And components are documented with interactive controls and different scenarios
+And the Storybook build can be deployed for design review and component library documentation
