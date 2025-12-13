@@ -13,6 +13,11 @@ export class JobOffersController {
     return await this.jobOffersService.create(createJobOfferDto);
   }
 
+  @Post('upsert')
+  async upsert(@Body() createJobOfferDto: CreateJobOfferDto): Promise<JobOffer> {
+    return await this.jobOffersService.upsert(createJobOfferDto);
+  }
+
   @Get()
   async findAll(): Promise<JobOffer[]> {
     return await this.jobOffersService.findAll();

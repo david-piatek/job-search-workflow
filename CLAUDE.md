@@ -91,14 +91,12 @@ And docker-bake.hcl is updated to reference the renamed files
 Then Docker files follow standard naming conventions (Dockerfile.backend, Dockerfile.frontend, compose.yaml)
 And the build configuration correctly references the renamed files
 
-Scenario: Remove upsert endpoint from API
-Given the frontend has a "Relancer Workflow" button that calls POST /api/job-offers/upsert
-And the backend has an upsert route and service method
-When the rerunWorkflow function is removed from the frontend
-And the "Workflow" column is removed from the job offers table
-And the upsert route is removed from JobOffersController
-And the upsert method is removed from JobOffersService
-And related CSS styles for btn-workflow are removed
-Then the application no longer exposes the upsert functionality
-And the frontend builds successfully without errors
-And the backend builds successfully without errors
+Scenario: Add workflow retry button to trigger n8n webhook
+Given users need to manually trigger the n8n workflow for existing job offers
+When a "Workflow" column is added to the job offers table
+And a "🔄 Relancer" button is added in each row
+And the button calls POST /api/job-offers/upsert with the job offer data
+And the backend upsert endpoint creates or updates the offer and calls the n8n webhook
+Then users can re-trigger the n8n workflow for any job offer
+And the webhook at https://n8n.draw-me-the-moon.fr/webhook/58fc3205-46d2-4492-b75e-02dc5eed601a receives the job offer data
+And the application builds successfully with the new functionality
