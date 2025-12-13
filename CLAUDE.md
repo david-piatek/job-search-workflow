@@ -7,7 +7,7 @@ Given the GitLab CI pipeline runs from the project root
 And the docker-bake.hcl file is located at cloud/docker/docker-bake.hcl
 When the build command "docker buildx bake -f cloud/docker/docker-bake.hcl prod --push" is executed
 Then the context should be "." relative to the project root
-And the dockerfile paths should be "cloud/docker/Dockerfile.backend-simple" and "cloud/docker/Dockerfile.frontend-simple"
+And the dockerfile paths should be "cloud/docker/Dockerfile.backend" and "cloud/docker/Dockerfile.frontend"
 And the build should not require access to parent directories outside the project root
 
 Scenario: Disable GitHub Actions CI to save CI resources
@@ -27,8 +27,8 @@ And the registry path matches the project structure
 Scenario: Clean up cloud/docker directory
 Given the cloud/docker directory contains multiple duplicate and obsolete files
 When obsolete Docker files are removed
-Then only the actively used files remain: Dockerfile.backend-simple, Dockerfile.frontend-simple, compose-simple.yaml, and docker-bake.hcl
-And all references in .github/workflows/ci.yml and Taskfile.yml are updated to use -simple versions
+Then only the actively used files remain: Dockerfile.backend, Dockerfile.frontend, compose.yaml, and docker-bake.hcl
+And all references in .github/workflows/ci.yml and Taskfile.yml are updated
 And Docker-specific tasks for letter-generator and qr-generator are removed
 
 Scenario: Rename ArgoCD application to match project name
@@ -83,3 +83,10 @@ And frontend components are updated to use the new endpoint
 Then the terminology consistently reflects the purpose of tracking job offers
 And all API calls use the /api/job-offers endpoint
 And the codebase builds successfully with the new naming
+
+Scenario: Remove -simple suffix from Docker files
+Given Docker files use -simple suffix (Dockerfile.backend-simple, Dockerfile.frontend-simple, compose-simple.yaml)
+When the -simple suffix is removed from all Docker file names
+And docker-bake.hcl is updated to reference the renamed files
+Then Docker files follow standard naming conventions (Dockerfile.backend, Dockerfile.frontend, compose.yaml)
+And the build configuration correctly references the renamed files

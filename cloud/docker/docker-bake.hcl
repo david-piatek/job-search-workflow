@@ -36,7 +36,7 @@ group "dev" {
 target "backend" {
   inherits = ["_common"]
   context = "."
-  dockerfile = "cloud/docker/Dockerfile.backend-simple"
+  dockerfile = "cloud/docker/Dockerfile.backend"
   tags = [
     "${REGISTRY}/job-search-backend:${TAG}",
     "${REGISTRY}/job-search-backend:${COMMIT_SHA}",
@@ -61,7 +61,7 @@ target "backend-dev" {
 target "frontend" {
   inherits = ["_common"]
   context = "."
-  dockerfile = "cloud/docker/Dockerfile.frontend-simple"
+  dockerfile = "cloud/docker/Dockerfile.frontend"
   tags = [
     "${REGISTRY}/job-search-frontend:${TAG}",
     "${REGISTRY}/job-search-frontend:${COMMIT_SHA}",
