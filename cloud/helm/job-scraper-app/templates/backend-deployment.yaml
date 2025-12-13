@@ -35,15 +35,17 @@ spec:
             name: {{ .Release.Name }}-config
         livenessProbe:
           httpGet:
-            path: {{ .Values.healthCheck.backend.path }}
+            path: /
             port: http
           initialDelaySeconds: {{ .Values.healthCheck.backend.initialDelaySeconds }}
           periodSeconds: {{ .Values.healthCheck.backend.periodSeconds }}
+          failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: {{ .Values.healthCheck.backend.path }}
+            path: /
             port: http
           initialDelaySeconds: {{ .Values.healthCheck.backend.initialDelaySeconds }}
           periodSeconds: {{ .Values.healthCheck.backend.periodSeconds }}
+          failureThreshold: 3
         resources:
           {{- toYaml .Values.resources.backend | nindent 10 }}
