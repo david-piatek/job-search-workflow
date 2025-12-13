@@ -35,14 +35,14 @@ spec:
             name: {{ .Release.Name }}-config
         livenessProbe:
           httpGet:
-            path: /
+            path: /api
             port: http
           initialDelaySeconds: {{ .Values.healthCheck.backend.initialDelaySeconds }}
           periodSeconds: {{ .Values.healthCheck.backend.periodSeconds }}
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /
+            path: /api
             port: http
           initialDelaySeconds: {{ .Values.healthCheck.backend.initialDelaySeconds }}
           periodSeconds: {{ .Values.healthCheck.backend.periodSeconds }}
