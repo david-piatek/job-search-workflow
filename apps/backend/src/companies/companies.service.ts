@@ -10,7 +10,7 @@ import axios from 'axios';
 export class CompaniesService {
   private readonly logger = new Logger(CompaniesService.name);
   private readonly webhookUrl =
-    'https://n8n.draw-me-the-moon.fr/webhook-test/58fc3205-46d2-4492-b75e-02dc5eed601a';
+    'https://n8n.draw-me-the-moon.fr/webhook/58fc3205-46d2-4492-b75e-02dc5eed601a';
 
   constructor(
     @InjectRepository(JobOffer)

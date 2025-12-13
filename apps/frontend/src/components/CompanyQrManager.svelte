@@ -219,7 +219,9 @@ QR Code pour accès rapide: ${qrUrl}`;
               <p>⏳ Génération du QR code...</p>
             {:else if qrCodeImage}
               <img src={qrCodeImage} alt="QR Code" class="qr-code-preview" />
-              <p class="qr-info">URL: https://masuperurl.com/{selectedCompany.slug}</p>
+              <p class="qr-info">
+                URL: https://job-search-workflow.draw-me-the-moon.fr/{selectedCompany.slug}
+              </p>
             {:else}
               <p class="qr-error">❌ Erreur lors de la génération du QR code</p>
             {/if}
