@@ -49,20 +49,7 @@ export class CompaniesService {
     const savedJobOffer = await this.companyRepository.save(company);
 
     // Appeler le webhook n8n
-    try {
-      this.logger.log(`Envoi de l'offre au webhook: ${savedJobOffer.id}`);
-      await axios.post(this.webhookUrl, {
-        id: savedJobOffer.id,
-        name: savedJobOffer.name,
-        slug: savedJobOffer.slug,
-        url: savedJobOffer.url,
-        createdAt: savedJobOffer.createdAt,
-      });
-      this.logger.log('Webhook appelé avec succès');
-    } catch (error) {
-      this.logger.error(`Erreur lors de l'appel du webhook: ${error.message}`);
-      // Ne pas bloquer la création si le webhook échoue
-    }
+    await this.callWebhook(savedJobOffer);
 
     return savedJobOffer;
   }
@@ -132,6 +119,23 @@ export class CompaniesService {
       // Créer une nouvelle offre (utilise la logique create existante avec webhook)
       this.logger.log(`Création d'une nouvelle offre: ${createCompanyDto.slug}`);
       return await this.create(createCompanyDto);
+    }
+  }
+
+  private async callWebhook(jobOffer: JobOffer): Promise<void> {
+    try {
+      this.logger.log(`Envoi de l'offre au webhook: ${jobOffer.id}`);
+      await axios.post(this.webhookUrl, {
+        id: jobOffer.id,
+        name: jobOffer.name,
+        slug: jobOffer.slug,
+        url: jobOffer.url,
+        createdAt: jobOffer.createdAt,
+      });
+      this.logger.log('Webhook appelé avec succès');
+    } catch (error) {
+      this.logger.error(`Erreur lors de l'appel du webhook: ${error.message}`);
+      // Ne pas bloquer la création si le webhook échoue
     }
   }
 }
