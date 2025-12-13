@@ -13,11 +13,8 @@ COPY apps/frontend/package.json ./apps/frontend/package.json
 RUN --mount=type=cache,id=pnpm-frontend,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --prefer-offline
 
-# Copy source code (changes frequently - should be last)
-COPY apps/frontend/src ./apps/frontend/src
-COPY apps/frontend/*.config.* ./apps/frontend/
-COPY apps/frontend/index.html ./apps/frontend/
-COPY apps/frontend/tsconfig*.json ./apps/frontend/ 2>/dev/null || true
+# Copy source code and config (changes frequently - should be last)
+COPY apps/frontend ./apps/frontend
 
 # Build application
 WORKDIR /app/apps/frontend
