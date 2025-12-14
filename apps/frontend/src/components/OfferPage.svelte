@@ -7,6 +7,9 @@
   let offer = null;
   let loading = true;
   let error = '';
+  let emailTemplate = '';
+  let qrCodeImage = '';
+  let loadingQr = false;
 
   onMount(async () => {
     await loadOffer();
@@ -23,12 +26,74 @@
 
       offer = await response.json();
       error = '';
+
+      // Generate email template automatically
+      await generateEmailTemplate();
     } catch (err) {
       error = err.message || "Erreur lors du chargement de l'offre";
       console.error(err);
     } finally {
       loading = false;
     }
+  }
+
+  async function generateEmailTemplate() {
+    if (!offer) return;
+
+    loadingQr = true;
+    const jobOfferName = offer.name || offer.slug;
+    const qrUrl = `https://job-search-workflow.draw-me-the-moon.fr/${offer.slug}`;
+
+    emailTemplate = `Objet: Candidature spontanée - [Votre poste souhaité]
+
+Madame, Monsieur,
+
+Je me permets de vous adresser ma candidature spontanée pour un poste de [Votre poste] au sein de ${jobOfferName}.
+
+Passionné(e) par [votre domaine], je suis convaincu(e) que mon profil et mes compétences pourraient apporter une valeur ajoutée à votre entreprise.
+
+Vous trouverez ci-joint mon CV détaillant mon parcours et mes expériences.
+
+Je reste à votre disposition pour un entretien afin de vous présenter plus en détail mes motivations.
+
+Dans l'attente de votre retour, je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
+
+[Votre nom]
+[Votre téléphone]
+[Votre email]
+
+---
+Site web: ${offer.url}
+QR Code pour accès rapide: ${qrUrl}`;
+
+    // Generate QR code
+    try {
+      const response = await fetch(`${API_BASE_URL}/generators/qr/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: qrUrl,
+          size: 300,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      qrCodeImage = result.dataUrl;
+    } catch (err) {
+      console.error('Erreur génération QR code:', err);
+      qrCodeImage = '';
+    } finally {
+      loadingQr = false;
+    }
+  }
+
+  function copyEmailTemplate() {
+    navigator.clipboard.writeText(emailTemplate);
+    alert('Email copié dans le presse-papier !');
   }
 
   function visitOffer() {
@@ -159,6 +224,33 @@
             <div class="info-section full-width">
               <span class="field-label">Raison du score de correspondance</span>
               <div class="text-content">{offer.cvMatchScoreReason}</div>
+            </div>
+          {/if}
+
+          {#if emailTemplate}
+            <div class="email-template-section">
+              <h3>📧 Template Email de Candidature</h3>
+              <div class="template-body">
+                <textarea readonly rows="15" value={emailTemplate}></textarea>
+
+                <div class="qr-section">
+                  <h4>QR Code à inclure dans l'email</h4>
+                  {#if loadingQr}
+                    <p>⏳ Génération du QR code...</p>
+                  {:else if qrCodeImage}
+                    <img src={qrCodeImage} alt="QR Code" class="qr-code-preview" />
+                    <p class="qr-info">
+                      URL: https://job-search-workflow.draw-me-the-moon.fr/{offer.slug}
+                    </p>
+                  {:else}
+                    <p class="qr-error">❌ Erreur lors de la génération du QR code</p>
+                  {/if}
+                </div>
+
+                <button on:click={copyEmailTemplate} class="copy-btn">
+                  📋 Copier le template
+                </button>
+              </div>
             </div>
           {/if}
 
@@ -479,6 +571,91 @@
   .offer-footer small {
     color: #6c757d;
     font-size: 0.9rem;
+  }
+
+  .email-template-section {
+    margin-top: 2rem;
+    padding: 2rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+  }
+
+  .email-template-section h3 {
+    margin: 0 0 1.5rem 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+  }
+
+  .template-body textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    resize: vertical;
+    background: #ffffff;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+  }
+
+  .qr-section {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .qr-section h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: #495057;
+    text-transform: none;
+  }
+
+  .qr-code-preview {
+    max-width: 250px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background: white;
+  }
+
+  .qr-info {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-family: 'Courier New', monospace;
+  }
+
+  .qr-error {
+    color: #c53030;
+    font-weight: 500;
+    margin: 1rem 0;
+  }
+
+  .copy-btn {
+    padding: 0.85rem 1.5rem;
+    background: #646cff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .copy-btn:hover {
+    background: #535bf2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(100, 108, 255, 0.3);
   }
 
   @media (max-width: 768px) {

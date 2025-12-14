@@ -6,10 +6,6 @@
   let newJobOffer = { name: '', slug: '', url: '' };
   let loading = false;
   let error = '';
-  let selectedJobOffer = null;
-  let emailTemplate = '';
-  let qrCodeImage = '';
-  let loadingQr = false;
 
   onMount(async () => {
     await loadJobOffers();
@@ -81,72 +77,6 @@
       loading = false;
     }
   }
-
-  async function generateEmailTemplate(jobOffer) {
-    selectedJobOffer = jobOffer;
-    loadingQr = true;
-    const jobOfferName = jobOffer.name || jobOffer.slug;
-    const qrUrl = `https://job-search-workflow.draw-me-the-moon.fr/${jobOffer.slug}`;
-
-    emailTemplate = `Objet: Candidature spontanée - [Votre poste souhaité]
-
-Madame, Monsieur,
-
-Je me permets de vous adresser ma candidature spontanée pour un poste de [Votre poste] au sein de ${jobOfferName}.
-
-Passionné(e) par [votre domaine], je suis convaincu(e) que mon profil et mes compétences pourraient apporter une valeur ajoutée à votre entreprise.
-
-Vous trouverez ci-joint mon CV détaillant mon parcours et mes expériences.
-
-Je reste à votre disposition pour un entretien afin de vous présenter plus en détail mes motivations.
-
-Dans l'attente de votre retour, je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
-
-[Votre nom]
-[Votre téléphone]
-[Votre email]
-
----
-Site web: ${jobOffer.url}
-QR Code pour accès rapide: ${qrUrl}`;
-
-    // Générer le QR code
-    try {
-      console.log('Génération QR code pour:', qrUrl);
-      const response = await fetch(`${API_BASE_URL}/generators/qr/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: qrUrl,
-          size: 300,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log('QR code généré:', result);
-      qrCodeImage = result.dataUrl;
-    } catch (err) {
-      console.error('Erreur génération QR code:', err);
-      error = 'Erreur lors de la génération du QR code';
-      qrCodeImage = '';
-    } finally {
-      loadingQr = false;
-    }
-  }
-
-  function copyEmailTemplate() {
-    navigator.clipboard.writeText(emailTemplate);
-    alert('Email copié dans le presse-papier !');
-  }
-
-  function closeEmailTemplate() {
-    selectedJobOffer = null;
-    emailTemplate = '';
-  }
 </script>
 
 <div class="jobOffer-qr-manager">
@@ -181,7 +111,6 @@ QR Code pour accès rapide: ${qrUrl}`;
               <th>Slug</th>
               <th>URL</th>
               <th>Page</th>
-              <th>Template Mail</th>
               <th>Workflow</th>
             </tr>
           </thead>
@@ -199,11 +128,6 @@ QR Code pour accès rapide: ${qrUrl}`;
                   <a href="/{jobOffer.slug}" class="btn-page"> 🔗 Voir la page </a>
                 </td>
                 <td class="jobOffer-action">
-                  <button on:click={() => generateEmailTemplate(jobOffer)} class="btn-template">
-                    📧 Voir template
-                  </button>
-                </td>
-                <td class="jobOffer-action">
                   <button on:click={() => rerunWorkflow(jobOffer)} class="btn-workflow">
                     🔄 Relancer
                   </button>
@@ -215,36 +139,6 @@ QR Code pour accès rapide: ${qrUrl}`;
       </div>
     {/if}
   </div>
-
-  {#if selectedJobOffer}
-    <div class="email-template-section section">
-      <div class="template-header">
-        <h3>📧 Template Email - {selectedJobOffer.name || selectedJobOffer.slug}</h3>
-        <button class="close-btn" on:click={closeEmailTemplate}>✕</button>
-      </div>
-      <div class="template-body">
-        <textarea readonly rows="15" value={emailTemplate}></textarea>
-
-        <div class="qr-section">
-          <h4>QR Code à inclure dans l'email</h4>
-          {#if loadingQr}
-            <p>⏳ Génération du QR code...</p>
-          {:else if qrCodeImage}
-            <img src={qrCodeImage} alt="QR Code" class="qr-code-preview" />
-            <p class="qr-info">
-              URL: https://job-search-workflow.draw-me-the-moon.fr/{selectedJobOffer.slug}
-            </p>
-          {:else}
-            <p class="qr-error">❌ Erreur lors de la génération du QR code</p>
-          {/if}
-        </div>
-      </div>
-      <div class="template-footer">
-        <button on:click={copyEmailTemplate} class="primary"> 📋 Copier le template </button>
-        <button on:click={closeEmailTemplate} class="secondary"> Fermer </button>
-      </div>
-    </div>
-  {/if}
 </div>
 
 <style>
@@ -295,8 +189,7 @@ QR Code pour accès rapide: ${qrUrl}`;
     gap: 1rem;
   }
 
-  input,
-  textarea {
+  input {
     width: 100%;
     padding: 0.85rem 1rem;
     border: 1px solid #ced4da;
@@ -307,22 +200,15 @@ QR Code pour accès rapide: ${qrUrl}`;
     transition: all 0.2s;
   }
 
-  input::placeholder,
-  textarea::placeholder {
+  input::placeholder {
     color: #adb5bd;
   }
 
-  input:focus,
-  textarea:focus {
+  input:focus {
     outline: none;
     border-color: #646cff;
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.1);
-  }
-
-  textarea {
-    resize: vertical;
-    font-family: inherit;
   }
 
   button {
@@ -334,33 +220,11 @@ QR Code pour accès rapide: ${qrUrl}`;
     font-weight: 600;
     transition: all 0.2s;
     letter-spacing: 0.3px;
-  }
-
-  button.primary {
     background: #646cff;
     color: white;
   }
 
-  button.primary:hover:not(:disabled) {
-    background: #535bf2;
-  }
-
-  button.secondary {
-    background: #f8f9fa;
-    color: #495057;
-    border: 1px solid #dee2e6;
-  }
-
-  button.secondary:hover:not(:disabled) {
-    background: #e9ecef;
-  }
-
-  button:not(.primary):not(.secondary) {
-    background: #646cff;
-    color: white;
-  }
-
-  button:not(.primary):not(.secondary):hover:not(:disabled) {
+  button:hover:not(:disabled) {
     background: #535bf2;
   }
 
@@ -467,24 +331,6 @@ QR Code pour accès rapide: ${qrUrl}`;
     text-align: center;
   }
 
-  .btn-template {
-    padding: 0.5rem 1rem;
-    background: #646cff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .btn-template:hover {
-    background: #535bf2;
-  }
-
   .btn-page {
     padding: 0.5rem 1rem;
     background: #646cff;
@@ -522,117 +368,6 @@ QR Code pour accès rapide: ${qrUrl}`;
   .btn-workflow:disabled {
     background: #95a5a6;
     cursor: not-allowed;
-  }
-
-  .email-template-section {
-    margin-top: 2rem;
-    animation: slideIn 0.3s ease-out;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .template-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
-
-  .template-header h3 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #2c3e50;
-  }
-
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #6c757d;
-    cursor: pointer;
-    padding: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s;
-  }
-
-  .close-btn:hover {
-    background: #f8f9fa;
-    color: #2c3e50;
-  }
-
-  .template-body {
-    margin-bottom: 1.5rem;
-  }
-
-  .template-body textarea {
-    width: 100%;
-    padding: 1rem;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    resize: vertical;
-    background: #f8f9fa;
-  }
-
-  .template-footer {
-    display: flex;
-    gap: 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e9ecef;
-    justify-content: flex-end;
-  }
-
-  .qr-section {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    text-align: center;
-  }
-
-  .qr-section h4 {
-    margin: 0 0 1rem 0;
-    font-size: 1rem;
-    color: #495057;
-    text-transform: none;
-  }
-
-  .qr-code-preview {
-    max-width: 250px;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    padding: 0.5rem;
-    background: white;
-  }
-
-  .qr-info {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    color: #6c757d;
-    font-family: 'Courier New', monospace;
-  }
-
-  .qr-error {
-    color: #c53030;
-    font-weight: 500;
-    margin: 1rem 0;
   }
 
   @media (max-width: 768px) {
