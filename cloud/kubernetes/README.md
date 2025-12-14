@@ -1,8 +1,9 @@
 # Déploiement ArgoCD + GitLab
 
 ✅ **Infrastructure créée :**
+
 - Helm Chart complet (`cloud/helm/job-scraper-app/`)
-- Application ArgoCD (`cloud/argocd/application.yaml`)
+- Application ArgoCD (`cloud/kubernetes/application.yaml`)
 - GitLab CI/CD configuré (`.gitlab-ci.yml`)
 - Dockerfiles optimisés (`-simple`)
 
@@ -10,7 +11,8 @@
 
 ### 1. Modifier les URLs GitLab
 
-Éditer `cloud/helm/job-scraper-app/values-simple.yaml` et `cloud/argocd/application.yaml` :
+Éditer `cloud/helm/job-scraper-app/values-simple.yaml` et `cloud/kubernetes/application.yaml` :
+
 - Remplacer `YOUR_GITLAB_USER` par votre username GitLab
 
 ### 2. Push vers GitLab
@@ -22,6 +24,7 @@ git push origin main
 ```
 
 Le pipeline GitLab va :
+
 - ✅ Builder les images Docker
 - ✅ Les pusher vers GitLab Container Registry
 
@@ -37,7 +40,7 @@ kubectl create secret docker-registry gitlab-registry \
   --namespace=job-scraper
 
 # Déployer l'application
-kubectl apply -f cloud/argocd/application.yaml
+kubectl apply -f cloud/kubernetes/application.yaml
 
 # Vérifier
 argocd app get job-scraper-hello-world
@@ -68,11 +71,12 @@ GitLab → Build Images → Registry
 - `cloud/docker/Dockerfile.backend-simple` : Image backend
 - `cloud/docker/Dockerfile.frontend-simple` : Image frontend
 - `cloud/helm/job-scraper-app/` : Helm chart
-- `cloud/argocd/application.yaml` : App ArgoCD
+- `cloud/kubernetes/application.yaml` : App ArgoCD
 
 ## Troubleshooting
 
 Voir les logs :
+
 ```bash
 kubectl logs -f deployment/job-scraper-hello-world-backend -n job-scraper
 kubectl logs -f deployment/job-scraper-hello-world-frontend -n job-scraper

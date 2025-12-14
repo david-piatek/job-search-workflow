@@ -111,6 +111,7 @@ task dev
 ```
 
 L'application sera disponible sur:
+
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:3000
 - Swagger: http://localhost:3000/api
@@ -186,16 +187,16 @@ task helm:install
 
 ### ArgoCD (GitOps)
 
-1. Mettre à jour `cloud/argocd/application.yaml` avec votre repo GitHub
+1. Mettre à jour `cloud/kubernetes/application.yaml` avec votre repo GitHub
 2. Appliquer l'application:
 
 ```bash
-kubectl apply -f cloud/argocd/application.yaml
+kubectl apply -f cloud/kubernetes/application.yaml
 ```
 
 ArgoCD synchronisera automatiquement les changements du repo.
 
-Voir [cloud/argocd/README.md](cloud/argocd/README.md) pour plus de détails.
+Voir [cloud/kubernetes/README.md](cloud/kubernetes/README.md) pour plus de détails.
 
 ## Workflow n8n
 
@@ -317,6 +318,7 @@ DATA_DIR=./data
 #### Helm (`cloud/helm/job-scraper-app/values.yaml`)
 
 Personnaliser:
+
 - Images Docker
 - Ressources (CPU/Memory)
 - Ingress hostname
@@ -395,6 +397,7 @@ MIT
 ## Support
 
 Pour toute question ou problème:
+
 - Ouvrir une issue sur GitHub
 - Consulter la documentation dans `/docs`
 - Vérifier les logs d'exécution

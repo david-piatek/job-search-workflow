@@ -26,7 +26,7 @@ argocd login argocd.draw-me-the-moon.fr \
 
 ```bash
 # Appliquer le manifest
-kubectl apply -f cloud/argocd/application.yaml
+kubectl apply -f cloud/kubernetes/application.yaml
 
 # Vérifier la création
 kubectl get application -n argocd job-search-workflow
@@ -149,7 +149,7 @@ argocd app get job-search-workflow --refresh --hard-refresh
 
 # Supprimer et recréer
 argocd app delete job-search-workflow
-kubectl apply -f cloud/argocd/application.yaml
+kubectl apply -f cloud/kubernetes/application.yaml
 ```
 
 ### Images non trouvées
@@ -195,7 +195,7 @@ Vérifier le pipeline sur: https://gitlab.com/dav.piatek/job-search-workflow/-/p
 argocd app delete job-search-workflow
 
 # Via kubectl
-kubectl delete -f cloud/argocd/application.yaml
+kubectl delete -f cloud/kubernetes/application.yaml
 
 # Supprimer le namespace
 kubectl delete namespace job-search-workflow

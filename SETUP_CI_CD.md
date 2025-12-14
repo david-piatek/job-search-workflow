@@ -26,6 +26,7 @@ Go to Settings > Secrets and variables > Actions and add:
 - `GITLAB_TRIGGER_URL`: Your GitLab pipeline trigger URL
 
 Example:
+
 ```
 GITLAB_TRIGGER_URL=https://gitlab.com/api/v4/projects/YOUR_PROJECT_ID/trigger/pipeline
 ```
@@ -33,6 +34,7 @@ GITLAB_TRIGGER_URL=https://gitlab.com/api/v4/projects/YOUR_PROJECT_ID/trigger/pi
 #### Repository Already Pushed
 
 The code has already been pushed to:
+
 ```
 git@github.com:david-piatek/search-work-workflow.git
 ```
@@ -59,25 +61,30 @@ git push -u gitlab main
 Go to Settings > CI/CD > Variables and add:
 
 **Container Registry:**
+
 - `CI_REGISTRY`: Your GitLab registry (default: registry.gitlab.com)
 - `CI_REGISTRY_USER`: Your GitLab username
 - `CI_REGISTRY_PASSWORD`: Personal Access Token with registry access
 
 **Kubernetes Credentials:**
+
 - `KUBE_CONFIG_STAGING`: Base64 encoded kubeconfig for staging (Type: File, Protected: Yes)
 - `KUBE_CONFIG_PROD`: Base64 encoded kubeconfig for production (Type: File, Protected: Yes)
 
 To encode kubeconfig:
+
 ```bash
 cat ~/.kube/config | base64 -w 0
 ```
 
 **GitHub Integration:**
+
 - `GITLAB_TRIGGER_TOKEN`: Create in Settings > CI/CD > Pipeline triggers
 
 #### GitLab Runner
 
 Ensure you have GitLab runners with the following tags:
+
 - `docker`: For Docker build jobs
 - `kubernetes`: For deployment jobs
 
@@ -113,10 +120,10 @@ environment:
 
 If you prefer GitOps with ArgoCD instead of GitLab CD:
 
-1. Update `cloud/argocd/application.yaml` with your GitHub repo
+1. Update `cloud/kubernetes/application.yaml` with your GitHub repo
 2. Apply to your cluster:
    ```bash
-   kubectl apply -f cloud/argocd/application.yaml
+   kubectl apply -f cloud/kubernetes/application.yaml
    ```
 3. ArgoCD will auto-sync from GitHub
 
