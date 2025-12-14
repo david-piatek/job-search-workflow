@@ -14,7 +14,7 @@ spec:
     path: cloud/helm/job-scraper-app
     helm:
       valueFiles:
-        - values.yaml
+        - values-simple.yaml
 
   destination:
     server: https://kubernetes.default.svc
