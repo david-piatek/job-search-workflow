@@ -60,3 +60,4 @@ sync-deploy-repo:
       echo "# Deployment Repository - Helm Charts" > README.md
       git add .
       git commit -m "sync: ${CI_COMMIT_SHORT_SHA}"
+      git push --force origin HEAD:main
