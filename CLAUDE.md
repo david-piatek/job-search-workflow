@@ -146,3 +146,12 @@ Then the deployment configuration is separated from application code
 And ArgoCD watches the deploy repository at https://gitlab.com/dav.piatek/job-search-workflow-deploy.git
 And every code change triggers automatic synchronization of deployment manifests
 And the GitOps workflow follows best practices with separate config repositories
+
+Scenario: Fix GitLab CI YAML syntax error with heredoc in sync-deploy-repo job
+Given the sync-deploy-repo job uses heredoc syntax to create README.md
+And GitLab CI fails with "script config should be a string or a nested array of strings up to 10 levels deep"
+When the heredoc syntax cat > README.md <<'EOF' is replaced with simple echo statements
+And each line of the README is written using echo "content" >> README.md
+Then the GitLab CI YAML parser accepts the script configuration
+And the sync-deploy-repo job executes successfully
+And the README.md file is created in the deployment repository with proper formatting
