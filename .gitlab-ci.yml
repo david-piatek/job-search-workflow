@@ -87,8 +87,8 @@ sync-deploy-repo:
     - echo "" >> README.md
     - echo "## Structure" >> README.md
     - echo "" >> README.md
-    - echo "- \`helm/\` - Helm charts for Kubernetes deployment" >> README.md
-    - echo "- \`argocd/\` - ArgoCD application manifests" >> README.md
+    - echo "- 'helm/' - Helm charts for Kubernetes deployment" >> README.md
+    - echo "- 'argocd/' - ArgoCD application manifests" >> README.md
     - echo "" >> README.md
     - echo "## Usage" >> README.md
     - echo "" >> README.md
