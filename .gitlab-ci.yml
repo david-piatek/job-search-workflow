@@ -57,8 +57,7 @@ sync-deploy-repo:
       git init
       git remote add origin https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow-deploy.git
       mkdir -p helm && cp -r ${CI_PROJECT_DIR}/cloud/helm/* helm/
-      mkdir -p argocd && cp -r ${CI_PROJECT_DIR}/cloud/argocd/* argocd/
-      echo "# Deployment Repository" > README.md
+      echo "# Deployment Repository - Helm Charts" > README.md
       git add .
       git commit -m "sync: ${CI_COMMIT_SHORT_SHA}"
       git push --force origin HEAD:main
