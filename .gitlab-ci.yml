@@ -62,28 +62,28 @@ sync-deploy-repo:
       git commit -m "sync: ${CI_COMMIT_SHORT_SHA}"
       git push --force origin HEAD:main
 
-# Deploy to Kubernetes via ArgoCD
-deploy:
-  stage: deploy
-  image: argoproj/argocd:latest
-  only:
-    - main
-  needs:
-    - sync-deploy-repo
-  script:
-    - echo "Triggering ArgoCD deployment"
-    - |
-      argocd login $ARGOCD_SERVER \
-        --username $ARGOCD_USERNAME \
-        --password $ARGOCD_PASSWORD \
-        --grpc-web
-    - |
-      argocd app sync $ARGOCD_APP_NAME \
-        --prune \
-        --timeout 600
-    - argocd app wait $ARGOCD_APP_NAME --timeout 600
-    - echo "Deployment complete!"
-  environment:
-    name: production
-    url: https://job-search.draw-me-the-moon.fr
-  allow_failure: true
+# Deploy to Kubernetes via ArgoCD (disabled - using auto-sync)
+#deploy:
+#  stage: deploy
+#  image: argoproj/argocd:latest
+#  only:
+#    - main
+#  needs:
+#    - sync-deploy-repo
+#  script:
+#    - echo "Triggering ArgoCD deployment"
+#    - |
+#      argocd login $ARGOCD_SERVER \
+#        --username $ARGOCD_USERNAME \
+#        --password $ARGOCD_PASSWORD \
+#        --grpc-web
+#    - |
+#      argocd app sync $ARGOCD_APP_NAME \
+#        --prune \
+#        --timeout 600
+#    - argocd app wait $ARGOCD_APP_NAME --timeout 600
+#    - echo "Deployment complete!"
+#  environment:
+#    name: production
+#    url: https://job-search.draw-me-the-moon.fr
+#  allow_failure: true
