@@ -13,6 +13,7 @@ spec:
     targetRevision: HEAD
     path: helm/job-scraper-app
     helm:
+      releaseName: job-search-workflow
       valueFiles:
         - values-simple.yaml
 
