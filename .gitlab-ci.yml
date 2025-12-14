@@ -73,35 +73,27 @@ sync-deploy-repo:
     - cd /tmp/deploy-repo
     - git init
     - git remote add origin https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow-deploy.git
-    - |
-      # Copy Helm charts
-      mkdir -p helm
-      cp -r ${CI_PROJECT_DIR}/cloud/helm/* helm/
-    - |
-      # Copy ArgoCD manifests
-      mkdir -p argocd
-      cp -r ${CI_PROJECT_DIR}/cloud/argocd/* argocd/
-    - |
-      # Create README
-      cat > README.md <<'EOF'
-      # Job Search Workflow - Deployment Repository
-
-      This repository contains the Helm charts and ArgoCD application manifests for the Job Search Workflow application.
-
-      **Auto-generated from:** https://gitlab.com/dav.piatek/job-search-workflow
-      **Last sync:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
-      **Commit:** ${CI_COMMIT_SHORT_SHA}
-
-      ## Structure
-
-      - `helm/` - Helm charts for Kubernetes deployment
-      - `argocd/` - ArgoCD application manifests
-
-      ## Usage
-
-      This repository is automatically synchronized from the main repository.
-      Do not make manual changes here as they will be overwritten.
-      EOF
+    - mkdir -p helm
+    - cp -r ${CI_PROJECT_DIR}/cloud/helm/* helm/
+    - mkdir -p argocd
+    - cp -r ${CI_PROJECT_DIR}/cloud/argocd/* argocd/
+    - echo "# Job Search Workflow - Deployment Repository" > README.md
+    - echo "" >> README.md
+    - echo "This repository contains the Helm charts and ArgoCD application manifests for the Job Search Workflow application." >> README.md
+    - echo "" >> README.md
+    - echo "**Auto-generated from:** https://gitlab.com/dav.piatek/job-search-workflow" >> README.md
+    - echo "**Last sync:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> README.md
+    - echo "**Commit:** ${CI_COMMIT_SHORT_SHA}" >> README.md
+    - echo "" >> README.md
+    - echo "## Structure" >> README.md
+    - echo "" >> README.md
+    - echo "- \`helm/\` - Helm charts for Kubernetes deployment" >> README.md
+    - echo "- \`argocd/\` - ArgoCD application manifests" >> README.md
+    - echo "" >> README.md
+    - echo "## Usage" >> README.md
+    - echo "" >> README.md
+    - echo "This repository is automatically synchronized from the main repository." >> README.md
+    - echo "Do not make manual changes here as they will be overwritten." >> README.md
     - git add .
     - git commit -m "sync: Update from ${CI_COMMIT_SHORT_SHA}" || echo "No changes to commit"
     - git push --force origin HEAD:main
