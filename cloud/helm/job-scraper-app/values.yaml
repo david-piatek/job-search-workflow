@@ -7,11 +7,11 @@ image:
   backend:
     repository: registry.gitlab.com/dav.piatek/job-search-workflow/job-search-backend
     pullPolicy: Always
-    tag: "92588f24"
+    tag: "15bcb89d"
   frontend:
     repository: registry.gitlab.com/dav.piatek/job-search-workflow/job-search-frontend
     pullPolicy: Always
-    tag: "92588f24"
+    tag: "15bcb89d"
 service:
   backend:
     type: ClusterIP
