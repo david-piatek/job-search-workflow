@@ -67,6 +67,9 @@ target "frontend" {
     "${REGISTRY}/job-search-frontend:${COMMIT_SHA}",
   ]
   platforms = ["linux/amd64", "linux/arm64"]
+  args = {
+    COMMIT_SHA = "${COMMIT_SHA}"
+  }
 }
 
 target "frontend-prod" {

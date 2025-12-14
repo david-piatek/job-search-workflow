@@ -5,6 +5,7 @@
 
   let currentPath = window.location.pathname;
   let slug = null;
+  const commitSha = import.meta.env.VITE_COMMIT_SHA || 'dev';
 
   // Détecter les changements de route
   function updateRoute() {
@@ -66,6 +67,12 @@
   {/if}
 </main>
 
+<footer>
+  <div class="footer-content">
+    <span class="version">Version: <code>{commitSha.substring(0, 7)}</code></span>
+  </div>
+</footer>
+
 <style>
   main {
     min-height: 100vh;
@@ -76,5 +83,26 @@
     margin: 0;
     padding: 0;
     color: #2c3e50;
+  }
+
+  footer {
+    background: #2c3e50;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .version code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
   }
 </style>
