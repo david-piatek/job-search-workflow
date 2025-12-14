@@ -55,6 +55,58 @@ update-helm-values:
     - git commit -m "ci update image tags to ${CI_COMMIT_SHORT_SHA} [skip ci]"
     - git push https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow.git HEAD:main
 
+# Sync Helm charts and ArgoCD manifests to deploy repo
+sync-deploy-repo:
+  stage: update-manifest
+  image: alpine:latest
+  only:
+    - main
+  needs:
+    - update-helm-values
+  before_script:
+    - apk add --no-cache git rsync
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+  script:
+    - echo "Syncing Helm charts and ArgoCD manifests to deploy repo..."
+    - mkdir -p /tmp/deploy-repo
+    - cd /tmp/deploy-repo
+    - git init
+    - git remote add origin https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow-deploy.git
+    - |
+      # Copy Helm charts
+      mkdir -p helm
+      cp -r ${CI_PROJECT_DIR}/cloud/helm/* helm/
+    - |
+      # Copy ArgoCD manifests
+      mkdir -p argocd
+      cp -r ${CI_PROJECT_DIR}/cloud/argocd/* argocd/
+    - |
+      # Create README
+      cat > README.md <<'EOF'
+      # Job Search Workflow - Deployment Repository
+
+      This repository contains the Helm charts and ArgoCD application manifests for the Job Search Workflow application.
+
+      **Auto-generated from:** https://gitlab.com/dav.piatek/job-search-workflow
+      **Last sync:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+      **Commit:** ${CI_COMMIT_SHORT_SHA}
+
+      ## Structure
+
+      - `helm/` - Helm charts for Kubernetes deployment
+      - `argocd/` - ArgoCD application manifests
+
+      ## Usage
+
+      This repository is automatically synchronized from the main repository.
+      Do not make manual changes here as they will be overwritten.
+      EOF
+    - git add .
+    - git commit -m "sync: Update from ${CI_COMMIT_SHORT_SHA}" || echo "No changes to commit"
+    - git push --force origin HEAD:main
+    - echo "✅ Deploy repo synchronized successfully!"
+
 # Deploy to Kubernetes via ArgoCD
 deploy:
   stage: deploy
@@ -63,6 +115,7 @@ deploy:
     - main
   needs:
     - update-helm-values
+    - sync-deploy-repo
   script:
     - echo "Triggering ArgoCD deployment"
     - |

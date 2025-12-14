@@ -9,9 +9,9 @@ spec:
   project: default
 
   source:
-    repoURL: https://gitlab.com/dav.piatek/job-search-workflow.git
+    repoURL: https://gitlab.com/dav.piatek/job-search-workflow-deploy.git
     targetRevision: HEAD
-    path: cloud/helm/job-scraper-app
+    path: helm/job-scraper-app
     helm:
       valueFiles:
         - values-simple.yaml

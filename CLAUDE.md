@@ -133,3 +133,16 @@ Then the email template displays directly on the detail page
 And the template includes job offer information and QR code
 And users can copy the template with a single click
 And the job offers table is simplified to: slug, URL, page, workflow
+
+Scenario: Separate deployment repository with GitOps workflow
+Given the application code and deployment manifests are mixed in the same repository
+And ArgoCD watches the main repository for Helm chart changes
+When a separate deployment repository job-search-workflow-deploy is created
+And a CI job sync-deploy-repo is added to automatically sync Helm charts and ArgoCD manifests
+And the sync job runs after update-helm-values and force pushes to the deploy repo
+And the ArgoCD application manifest is updated to point to the deploy repository
+And the Helm chart path is changed from cloud/helm/job-scraper-app to helm/job-scraper-app
+Then the deployment configuration is separated from application code
+And ArgoCD watches the deploy repository at https://gitlab.com/dav.piatek/job-search-workflow-deploy.git
+And every code change triggers automatic synchronization of deployment manifests
+And the GitOps workflow follows best practices with separate config repositories
