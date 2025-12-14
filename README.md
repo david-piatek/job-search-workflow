@@ -187,11 +187,11 @@ task helm:install
 
 ### ArgoCD (GitOps)
 
-1. Mettre à jour `cloud/kubernetes/application.yaml` avec votre repo GitHub
+1. Mettre à jour `cloud/kubernetes/argocd.yaml` avec votre repo GitHub
 2. Appliquer l'application:
 
 ```bash
-kubectl apply -f cloud/kubernetes/application.yaml
+kubectl apply -f cloud/kubernetes/argocd.yaml
 ```
 
 ArgoCD synchronisera automatiquement les changements du repo.

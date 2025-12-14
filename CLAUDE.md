@@ -49,8 +49,8 @@ And the chart is ready for ArgoCD synchronization
 
 Scenario: Deploy ArgoCD application
 Given the Helm chart exists at cloud/helm/job-scraper-app
-And the ArgoCD application manifest is at cloud/kubernetes/application.yaml
-When kubectl apply -f cloud/kubernetes/application.yaml is executed
+And the ArgoCD application manifest is at cloud/kubernetes/argocd.yaml
+When kubectl apply -f cloud/kubernetes/argocd.yaml is executed
 Then the ArgoCD application "job-search-workflow" is created
 And ArgoCD automatically syncs with the GitLab repository
 And Kubernetes resources are deployed to the "job-search-workflow" namespace

@@ -120,10 +120,10 @@ environment:
 
 If you prefer GitOps with ArgoCD instead of GitLab CD:
 
-1. Update `cloud/kubernetes/application.yaml` with your GitHub repo
+1. Update `cloud/kubernetes/argocd.yaml` with your GitHub repo
 2. Apply to your cluster:
    ```bash
-   kubectl apply -f cloud/kubernetes/application.yaml
+   kubectl apply -f cloud/kubernetes/argocd.yaml
    ```
 3. ArgoCD will auto-sync from GitHub
 
