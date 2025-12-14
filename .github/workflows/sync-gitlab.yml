@@ -1,7 +1,10 @@
 name: Sync to GitLab
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
     branches:
       - main
       - develop
@@ -13,7 +16,7 @@ jobs:
   sync-to-gitlab:
     name: Sync to GitLab
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout code
