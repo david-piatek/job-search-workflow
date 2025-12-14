@@ -25,12 +25,11 @@ jobs:
           fetch-depth: 0  # Full history for proper sync
 
       - name: Force Push to GitLab
-        env:
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global core.hooksPath /dev/null
+          echo "https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com" > ~/.git-credentials
+          git config --global credential.helper store
           git remote add gitlab https://gitlab.com/dav.piatek/job-search-workflow.git
-          git config --global url."https://oauth2:${GITLAB_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
           git push gitlab main --force
