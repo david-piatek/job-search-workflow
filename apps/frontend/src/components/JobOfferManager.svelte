@@ -27,7 +27,7 @@
 
   async function createJobOffer() {
     if (!newJobOffer.slug || !newJobOffer.url) {
-      error = "Veuillez remplir les champs slug et URL de l'offre (le nom est optionnel)";
+      error = "Veuillez remplir les champs slug et URL de l'offre";
       return;
     }
 
@@ -147,12 +147,6 @@ QR Code pour accès rapide: ${qrUrl}`;
     selectedJobOffer = null;
     emailTemplate = '';
   }
-
-  function handleKeydown(event) {
-    if (event.key === 'Escape') {
-      closeEmailTemplate();
-    }
-  }
 </script>
 
 <div class="jobOffer-qr-manager">
@@ -165,7 +159,6 @@ QR Code pour accès rapide: ${qrUrl}`;
   <div class="section">
     <h3>Ajouter une offre</h3>
     <div class="form-group">
-      <input type="text" bind:value={newJobOffer.name} placeholder="Nom de l'offre (optionnel)" />
       <input
         type="text"
         bind:value={newJobOffer.slug}
@@ -185,10 +178,9 @@ QR Code pour accès rapide: ${qrUrl}`;
         <table>
           <thead>
             <tr>
-              <th>Nom</th>
               <th>Slug</th>
-              <th>Page</th>
               <th>URL</th>
+              <th>Page</th>
               <th>Template Mail</th>
               <th>Workflow</th>
             </tr>
@@ -196,16 +188,15 @@ QR Code pour accès rapide: ${qrUrl}`;
           <tbody>
             {#each jobOffers as jobOffer}
               <tr>
-                <td class="jobOffer-name">{jobOffer.name || 'Sans nom'}</td>
                 <td class="jobOffer-slug"><code>{jobOffer.slug}</code></td>
-                <td class="jobOffer-action">
-                  <a href="/{jobOffer.slug}" class="btn-page"> 🔗 Voir la page </a>
-                </td>
                 <td class="jobOffer-url">
                   <a href={jobOffer.url} target="_blank" rel="noopener noreferrer">
                     {jobOffer.url}
                     <span class="external-link">↗</span>
                   </a>
+                </td>
+                <td class="jobOffer-action">
+                  <a href="/{jobOffer.slug}" class="btn-page"> 🔗 Voir la page </a>
                 </td>
                 <td class="jobOffer-action">
                   <button on:click={() => generateEmailTemplate(jobOffer)} class="btn-template">
@@ -226,43 +217,31 @@ QR Code pour accès rapide: ${qrUrl}`;
   </div>
 
   {#if selectedJobOffer}
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <div
-      class="modal-overlay"
-      role="dialog"
-      aria-modal="true"
-      tabindex="-1"
-      on:click={closeEmailTemplate}
-      on:keydown={handleKeydown}
-    >
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-      <div class="modal-content" role="document" tabindex="-1" on:click|stopPropagation>
-        <div class="modal-header">
-          <h3>Template Email - {selectedJobOffer.name || selectedJobOffer.slug}</h3>
-          <button class="close-btn" on:click={closeEmailTemplate}>✕</button>
-        </div>
-        <div class="modal-body">
-          <textarea readonly rows="15" value={emailTemplate}></textarea>
+    <div class="email-template-section section">
+      <div class="template-header">
+        <h3>📧 Template Email - {selectedJobOffer.name || selectedJobOffer.slug}</h3>
+        <button class="close-btn" on:click={closeEmailTemplate}>✕</button>
+      </div>
+      <div class="template-body">
+        <textarea readonly rows="15" value={emailTemplate}></textarea>
 
-          <div class="qr-section">
-            <h4>QR Code à inclure dans l'email</h4>
-            {#if loadingQr}
-              <p>⏳ Génération du QR code...</p>
-            {:else if qrCodeImage}
-              <img src={qrCodeImage} alt="QR Code" class="qr-code-preview" />
-              <p class="qr-info">
-                URL: https://job-search-workflow.draw-me-the-moon.fr/{selectedJobOffer.slug}
-              </p>
-            {:else}
-              <p class="qr-error">❌ Erreur lors de la génération du QR code</p>
-            {/if}
-          </div>
+        <div class="qr-section">
+          <h4>QR Code à inclure dans l'email</h4>
+          {#if loadingQr}
+            <p>⏳ Génération du QR code...</p>
+          {:else if qrCodeImage}
+            <img src={qrCodeImage} alt="QR Code" class="qr-code-preview" />
+            <p class="qr-info">
+              URL: https://job-search-workflow.draw-me-the-moon.fr/{selectedJobOffer.slug}
+            </p>
+          {:else}
+            <p class="qr-error">❌ Erreur lors de la génération du QR code</p>
+          {/if}
         </div>
-        <div class="modal-footer">
-          <button on:click={copyEmailTemplate} class="primary"> 📋 Copier le template </button>
-          <button on:click={closeEmailTemplate} class="secondary"> Fermer </button>
-        </div>
+      </div>
+      <div class="template-footer">
+        <button on:click={copyEmailTemplate} class="primary"> 📋 Copier le template </button>
+        <button on:click={closeEmailTemplate} class="secondary"> Fermer </button>
       </div>
     </div>
   {/if}
@@ -443,15 +422,6 @@ QR Code pour accès rapide: ${qrUrl}`;
     background: #f8f9fa;
   }
 
-  .jobOffer-name {
-    font-weight: 600;
-    color: #2c3e50;
-    max-width: 150px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
   .jobOffer-slug {
     min-width: 120px;
   }
@@ -497,7 +467,24 @@ QR Code pour accès rapide: ${qrUrl}`;
     text-align: center;
   }
 
-  .btn-template,
+  .btn-template {
+    padding: 0.5rem 1rem;
+    background: #646cff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-template:hover {
+    background: #535bf2;
+  }
+
   .btn-page {
     padding: 0.5rem 1rem;
     background: #646cff;
@@ -512,7 +499,6 @@ QR Code pour accès rapide: ${qrUrl}`;
     display: inline-block;
   }
 
-  .btn-template:hover,
   .btn-page:hover {
     background: #535bf2;
   }
@@ -538,40 +524,33 @@ QR Code pour accès rapide: ${qrUrl}`;
     cursor: not-allowed;
   }
 
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+  .email-template-section {
+    margin-top: 2rem;
+    animation: slideIn 0.3s ease-out;
   }
 
-  .modal-content {
-    background: white;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .modal-header {
+  .template-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 1.5rem;
   }
 
-  .modal-header h3 {
+  .template-header h3 {
     margin: 0;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    color: #2c3e50;
   }
 
   .close-btn {
@@ -595,13 +574,11 @@ QR Code pour accès rapide: ${qrUrl}`;
     color: #2c3e50;
   }
 
-  .modal-body {
-    padding: 2rem;
-    overflow-y: auto;
-    max-height: calc(90vh - 180px);
+  .template-body {
+    margin-bottom: 1.5rem;
   }
 
-  .modal-body textarea {
+  .template-body textarea {
     width: 100%;
     padding: 1rem;
     border: 1px solid #ced4da;
@@ -613,10 +590,10 @@ QR Code pour accès rapide: ${qrUrl}`;
     background: #f8f9fa;
   }
 
-  .modal-footer {
+  .template-footer {
     display: flex;
     gap: 1rem;
-    padding: 1.5rem 2rem;
+    padding-top: 1.5rem;
     border-top: 1px solid #e9ecef;
     justify-content: flex-end;
   }

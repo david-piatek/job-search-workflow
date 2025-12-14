@@ -36,6 +36,34 @@
       window.open(offer.url, '_blank');
     }
   }
+
+  async function rerunWorkflow() {
+    if (!offer) return;
+
+    try {
+      loading = true;
+      const response = await fetch(`${API_BASE_URL}/job-offers/upsert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: offer.name,
+          slug: offer.slug,
+          url: offer.url,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du relancement du workflow');
+      }
+
+      alert('✅ Workflow relancé avec succès!');
+    } catch (err) {
+      alert('❌ Erreur: ' + err.message);
+      console.error(err);
+    } finally {
+      loading = false;
+    }
+  }
 </script>
 
 <div class="offer-page">
@@ -136,6 +164,9 @@
 
           <div class="actions">
             <button on:click={visitOffer} class="primary-btn"> 🔗 Visiter l'offre </button>
+            <button on:click={rerunWorkflow} class="workflow-btn" disabled={loading}>
+              🔄 Relancer workflow
+            </button>
             <a href="/" class="secondary-btn"> ← Retour à la liste </a>
           </div>
         </div>
@@ -408,6 +439,35 @@
   .secondary-btn:hover {
     background: #e9ecef;
     border-color: #ced4da;
+  }
+
+  .workflow-btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workflow-btn:hover:not(:disabled) {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  }
+
+  .workflow-btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
   }
 
   .offer-footer {
