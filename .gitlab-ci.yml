@@ -55,7 +55,6 @@ update-helm-values:
     - git commit -m "ci update image tags to ${CI_COMMIT_SHORT_SHA} [skip ci]"
     - git push https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow.git HEAD:main
 
-# Sync Helm charts and ArgoCD manifests to deploy repo
 sync-deploy-repo:
   stage: update-manifest
   image: alpine:latest
@@ -64,24 +63,21 @@ sync-deploy-repo:
   needs:
     - update-helm-values
   before_script:
-    - apk add --no-cache git rsync
+    - apk add --no-cache git
     - git config --global user.email "ci@gitlab.com"
     - git config --global user.name "GitLab CI"
   script:
-    - echo "Syncing Helm charts and ArgoCD manifests to deploy repo..."
-    - mkdir -p /tmp/deploy-repo
-    - cd /tmp/deploy-repo
-    - git init
-    - git remote add origin https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow-deploy.git
-    - mkdir -p helm
-    - cp -r ${CI_PROJECT_DIR}/cloud/helm/* helm/
-    - mkdir -p argocd
-    - cp -r ${CI_PROJECT_DIR}/cloud/argocd/* argocd/
-    - printf "# Job Search Workflow - Deployment Repository\n\nAuto-generated from main repository\nCommit: ${CI_COMMIT_SHORT_SHA}\n" > README.md
-    - git add .
-    - git commit -m "sync: Update from ${CI_COMMIT_SHORT_SHA}" || echo "No changes to commit"
-    - git push --force origin HEAD:main
-    - echo "✅ Deploy repo synchronized successfully!"
+    - |
+      echo "Syncing to deploy repo..."
+      mkdir -p /tmp/deploy-repo && cd /tmp/deploy-repo
+      git init
+      git remote add origin https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/dav.piatek/job-search-workflow-deploy.git
+      mkdir -p helm && cp -r ${CI_PROJECT_DIR}/cloud/helm/* helm/
+      mkdir -p argocd && cp -r ${CI_PROJECT_DIR}/cloud/argocd/* argocd/
+      echo "# Deployment Repository" > README.md
+      git add .
+      git commit -m "sync: ${CI_COMMIT_SHORT_SHA}" || echo "No changes"
+      git push --force origin HEAD:main
 
 # Deploy to Kubernetes via ArgoCD
 deploy:
