@@ -37,5 +37,9 @@ export class UpdateJobOfferDto {
 
   @IsString()
   @IsOptional()
+  motivationLetter?: string;
+
+  @IsString()
+  @IsOptional()
   status?: string;
 }
