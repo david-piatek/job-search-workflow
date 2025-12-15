@@ -7,9 +7,23 @@
   let offer = null;
   let loading = true;
   let error = '';
-  let emailTemplate = '';
   let qrCodeImage = '';
   let loadingQr = false;
+  let saving = false;
+  let hasUnsavedChanges = false;
+
+  // Editable fields
+  let editableOffer = {
+    companyName: '',
+    jobTitle: '',
+    salary: '',
+    remotePolicy: '',
+    cvMatchScore: null,
+    resumeJob: '',
+    cvPersonalizationHint: '',
+    cvMatchScoreReason: '',
+    motivationLetter: '',
+  };
 
   onMount(async () => {
     await loadOffer();
@@ -27,16 +41,58 @@
       offer = await response.json();
       error = '';
 
-      // Use motivationLetter from API or fallback
-      emailTemplate = offer.motivationLetter || 'Lettre de motivation non disponible';
+      // Populate editable fields
+      editableOffer = {
+        companyName: offer.companyName || '',
+        jobTitle: offer.jobTitle || '',
+        salary: offer.salary || '',
+        remotePolicy: offer.remotePolicy || '',
+        cvMatchScore: offer.cvMatchScore,
+        resumeJob: offer.resumeJob || '',
+        cvPersonalizationHint: offer.cvPersonalizationHint || '',
+        cvMatchScoreReason: offer.cvMatchScoreReason || '',
+        motivationLetter: offer.motivationLetter || '',
+      };
 
       // Generate QR code
       await generateQrCode();
+      hasUnsavedChanges = false;
     } catch (err) {
       error = err.message || "Erreur lors du chargement de l'offre";
       console.error(err);
     } finally {
       loading = false;
+    }
+  }
+
+  function markAsChanged() {
+    hasUnsavedChanges = true;
+  }
+
+  async function saveChanges() {
+    if (!offer) return;
+
+    try {
+      saving = true;
+      const response = await fetch(`${API_BASE_URL}/job-offers/by-slug/${slug}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editableOffer),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la sauvegarde');
+      }
+
+      const updated = await response.json();
+      offer = updated;
+      hasUnsavedChanges = false;
+      alert('✅ Modifications enregistrées avec succès!');
+    } catch (err) {
+      alert('❌ Erreur: ' + err.message);
+      console.error(err);
+    } finally {
+      saving = false;
     }
   }
 
@@ -71,7 +127,7 @@
   }
 
   function copyEmailTemplate() {
-    navigator.clipboard.writeText(emailTemplate);
+    navigator.clipboard.writeText(editableOffer.motivationLetter);
     alert('Email copié dans le presse-papier !');
   }
 
@@ -142,33 +198,49 @@
               </a>
             </div>
 
-            {#if offer.companyName}
-              <div class="info-section">
-                <span class="field-label">Entreprise</span>
-                <p>{offer.companyName}</p>
-              </div>
-            {/if}
+            <div class="info-section">
+              <span class="field-label">Entreprise</span>
+              <input
+                type="text"
+                bind:value={editableOffer.companyName}
+                on:input={markAsChanged}
+                placeholder="Nom de l'entreprise"
+                class="editable-input"
+              />
+            </div>
 
-            {#if offer.jobTitle}
-              <div class="info-section">
-                <span class="field-label">Poste</span>
-                <p>{offer.jobTitle}</p>
-              </div>
-            {/if}
+            <div class="info-section">
+              <span class="field-label">Poste</span>
+              <input
+                type="text"
+                bind:value={editableOffer.jobTitle}
+                on:input={markAsChanged}
+                placeholder="Titre du poste"
+                class="editable-input"
+              />
+            </div>
 
-            {#if offer.salary}
-              <div class="info-section">
-                <span class="field-label">Salaire</span>
-                <p>{offer.salary}</p>
-              </div>
-            {/if}
+            <div class="info-section">
+              <span class="field-label">Salaire</span>
+              <input
+                type="text"
+                bind:value={editableOffer.salary}
+                on:input={markAsChanged}
+                placeholder="Salaire"
+                class="editable-input"
+              />
+            </div>
 
-            {#if offer.remotePolicy}
-              <div class="info-section">
-                <span class="field-label">Télétravail</span>
-                <p>{offer.remotePolicy}</p>
-              </div>
-            {/if}
+            <div class="info-section">
+              <span class="field-label">Télétravail</span>
+              <input
+                type="text"
+                bind:value={editableOffer.remotePolicy}
+                on:input={markAsChanged}
+                placeholder="Politique de télétravail"
+                class="editable-input"
+              />
+            </div>
 
             {#if offer.status}
               <div class="info-section">
@@ -177,63 +249,91 @@
               </div>
             {/if}
 
-            {#if offer.cvMatchScore !== null && offer.cvMatchScore !== undefined}
-              <div class="info-section">
-                <span class="field-label">Score de correspondance CV</span>
-                <p class="score">{offer.cvMatchScore}%</p>
-              </div>
-            {/if}
+            <div class="info-section">
+              <span class="field-label">Score de correspondance CV</span>
+              <input
+                type="number"
+                bind:value={editableOffer.cvMatchScore}
+                on:input={markAsChanged}
+                placeholder="Score (0-100)"
+                min="0"
+                max="100"
+                step="0.01"
+                class="editable-input"
+              />
+            </div>
           </div>
 
-          {#if offer.resumeJob}
-            <div class="info-section full-width">
-              <span class="field-label">Résumé de l'offre</span>
-              <div class="text-content">{offer.resumeJob}</div>
-            </div>
-          {/if}
+          <div class="info-section full-width">
+            <span class="field-label">Résumé de l'offre</span>
+            <textarea
+              bind:value={editableOffer.resumeJob}
+              on:input={markAsChanged}
+              placeholder="Résumé de l'offre d'emploi..."
+              rows="4"
+              class="editable-textarea"
+            ></textarea>
+          </div>
 
-          {#if offer.cvPersonalizationHint}
-            <div class="info-section full-width">
-              <span class="field-label">Conseils de personnalisation CV</span>
-              <div class="text-content">{offer.cvPersonalizationHint}</div>
-            </div>
-          {/if}
+          <div class="info-section full-width">
+            <span class="field-label">Conseils de personnalisation CV</span>
+            <textarea
+              bind:value={editableOffer.cvPersonalizationHint}
+              on:input={markAsChanged}
+              placeholder="Conseils pour personnaliser votre CV..."
+              rows="4"
+              class="editable-textarea"
+            ></textarea>
+          </div>
 
-          {#if offer.cvMatchScoreReason}
-            <div class="info-section full-width">
-              <span class="field-label">Raison du score de correspondance</span>
-              <div class="text-content">{offer.cvMatchScoreReason}</div>
-            </div>
-          {/if}
+          <div class="info-section full-width">
+            <span class="field-label">Raison du score de correspondance</span>
+            <textarea
+              bind:value={editableOffer.cvMatchScoreReason}
+              on:input={markAsChanged}
+              placeholder="Pourquoi ce score de correspondance..."
+              rows="4"
+              class="editable-textarea"
+            ></textarea>
+          </div>
 
-          {#if emailTemplate}
-            <div class="email-template-section">
-              <h3>📧 Template Email de Candidature</h3>
-              <div class="template-body">
-                <textarea readonly rows="15" value={emailTemplate}></textarea>
+          <div class="email-template-section">
+            <h3>📧 Template Email de Candidature</h3>
+            <div class="template-body">
+              <textarea
+                bind:value={editableOffer.motivationLetter}
+                on:input={markAsChanged}
+                rows="15"
+                placeholder="Lettre de motivation..."
+                class="editable-textarea"
+              ></textarea>
 
-                <div class="qr-section">
-                  <h4>QR Code à inclure dans l'email</h4>
-                  {#if loadingQr}
-                    <p>⏳ Génération du QR code...</p>
-                  {:else if qrCodeImage}
-                    <img src={qrCodeImage} alt="QR Code" class="qr-code-preview" />
-                    <p class="qr-info">
-                      URL: https://job-search-workflow.draw-me-the-moon.fr/{offer.slug}
-                    </p>
-                  {:else}
-                    <p class="qr-error">❌ Erreur lors de la génération du QR code</p>
-                  {/if}
-                </div>
-
-                <button on:click={copyEmailTemplate} class="copy-btn">
-                  📋 Copier le template
-                </button>
+              <div class="qr-section">
+                <h4>QR Code à inclure dans l'email</h4>
+                {#if loadingQr}
+                  <p>⏳ Génération du QR code...</p>
+                {:else if qrCodeImage}
+                  <img src={qrCodeImage} alt="QR Code" class="qr-code-preview" />
+                  <p class="qr-info">
+                    URL: https://job-search-workflow.draw-me-the-moon.fr/{offer.slug}
+                  </p>
+                {:else}
+                  <p class="qr-error">❌ Erreur lors de la génération du QR code</p>
+                {/if}
               </div>
+
+              <button on:click={copyEmailTemplate} class="copy-btn"> 📋 Copier le template </button>
             </div>
+          </div>
+
+          {#if hasUnsavedChanges}
+            <div class="unsaved-warning">⚠️ Vous avez des modifications non enregistrées</div>
           {/if}
 
           <div class="actions">
+            <button on:click={saveChanges} class="save-btn" disabled={saving || !hasUnsavedChanges}>
+              {saving ? '💾 Enregistrement...' : '💾 Enregistrer'}
+            </button>
             <button on:click={visitOffer} class="primary-btn"> 🔗 Visiter l'offre </button>
             <button on:click={rerunWorkflow} class="workflow-btn" disabled={loading}>
               🔄 Relancer workflow
@@ -412,13 +512,6 @@
     line-height: 1.6;
   }
 
-  .text-content {
-    color: #2c3e50;
-    font-size: 1rem;
-    line-height: 1.8;
-    white-space: pre-wrap;
-  }
-
   .status-badge {
     display: inline-block;
     padding: 0.4rem 1rem;
@@ -427,12 +520,6 @@
     font-weight: 600;
     font-size: 0.9rem;
     text-transform: capitalize;
-  }
-
-  .score {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #646cff;
   }
 
   .offer-url {
@@ -635,6 +722,84 @@
     background: #535bf2;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(100, 108, 255, 0.3);
+  }
+
+  .editable-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #2c3e50;
+    background: #ffffff;
+    transition: all 0.2s;
+  }
+
+  .editable-input:focus {
+    outline: none;
+    border-color: #646cff;
+    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+  }
+
+  .editable-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    color: #2c3e50;
+    background: #ffffff;
+    resize: vertical;
+    line-height: 1.6;
+    transition: all 0.2s;
+  }
+
+  .editable-textarea:focus {
+    outline: none;
+    border-color: #646cff;
+    box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+  }
+
+  .save-btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .save-btn:hover:not(:disabled) {
+    background: #229954;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+  }
+
+  .save-btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .unsaved-warning {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    color: #856404;
+    font-weight: 600;
+    text-align: center;
   }
 
   @media (max-width: 768px) {

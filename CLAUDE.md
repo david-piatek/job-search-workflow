@@ -169,3 +169,18 @@ Then database migrations run automatically before every deployment
 And the migrations complete successfully before new pods start rolling out
 And failed migrations prevent the deployment from proceeding
 And the Helm chart name is updated from job-scraper-app to job-search-workflow-app for consistency
+
+Scenario: Make job offer details editable on offer page
+Given users need to edit job offer information directly from the detail page
+When editable input fields are added for companyName, jobTitle, salary, and remotePolicy
+And editable textarea fields are added for resumeJob, cvPersonalizationHint, cvMatchScoreReason, and motivationLetter
+And editable number input is added for cvMatchScore
+And a markAsChanged function tracks when fields are modified
+And a saveChanges function sends PATCH request to /api/job-offers/by-slug/:slug endpoint
+And a save button is added to the actions section that is disabled when no changes exist
+And an unsaved warning banner appears when hasUnsavedChanges is true
+And CSS styles are added for editable-input, editable-textarea, save-btn, and unsaved-warning classes
+Then users can edit all job offer fields directly on the detail page
+And clicking save persists changes to the database via the backend API
+And visual feedback indicates when there are unsaved changes
+And the save button shows loading state during the save operation
