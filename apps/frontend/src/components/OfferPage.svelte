@@ -18,7 +18,7 @@
   async function loadOffer() {
     try {
       loading = true;
-      const response = await fetch(`${API_BASE_URL}/job-offers/by-slug/${slug}`);
+      const response = await fetch(`${API_BASE_URL}/job-offers/alumnforce/${slug}`);
 
       if (!response.ok) {
         throw new Error('Offre non trouvée');
@@ -27,8 +27,11 @@
       offer = await response.json();
       error = '';
 
-      // Generate email template automatically
-      await generateEmailTemplate();
+      // Use motivationLetter from API or fallback
+      emailTemplate = offer.motivationLetter || 'Lettre de motivation non disponible';
+
+      // Generate QR code
+      await generateQrCode();
     } catch (err) {
       error = err.message || "Erreur lors du chargement de l'offre";
       console.error(err);
@@ -37,36 +40,12 @@
     }
   }
 
-  async function generateEmailTemplate() {
+  async function generateQrCode() {
     if (!offer) return;
 
     loadingQr = true;
-    const jobOfferName = offer.name || offer.slug;
     const qrUrl = `https://job-search-workflow.draw-me-the-moon.fr/${offer.slug}`;
 
-    emailTemplate = `Objet: Candidature spontanée - [Votre poste souhaité]
-
-Madame, Monsieur,
-
-Je me permets de vous adresser ma candidature spontanée pour un poste de [Votre poste] au sein de ${jobOfferName}.
-
-Passionné(e) par [votre domaine], je suis convaincu(e) que mon profil et mes compétences pourraient apporter une valeur ajoutée à votre entreprise.
-
-Vous trouverez ci-joint mon CV détaillant mon parcours et mes expériences.
-
-Je reste à votre disposition pour un entretien afin de vous présenter plus en détail mes motivations.
-
-Dans l'attente de votre retour, je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
-
-[Votre nom]
-[Votre téléphone]
-[Votre email]
-
----
-Site web: ${offer.url}
-QR Code pour accès rapide: ${qrUrl}`;
-
-    // Generate QR code
     try {
       const response = await fetch(`${API_BASE_URL}/generators/qr/generate`, {
         method: 'POST',

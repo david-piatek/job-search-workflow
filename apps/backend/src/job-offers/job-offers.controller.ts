@@ -28,6 +28,11 @@ export class JobOffersController {
     return await this.jobOffersService.findBySlug(slug);
   }
 
+  @Get('alumnforce/:slug')
+  async getAlumnforce(@Param('slug') slug: string): Promise<JobOffer> {
+    return await this.jobOffersService.findBySlug(slug);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<JobOffer> {
     return await this.jobOffersService.findOne(id);

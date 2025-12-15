@@ -44,6 +44,9 @@ export class JobOffer {
   @Column({ type: 'text', nullable: true })
   cvMatchScoreReason: string;
 
+  @Column({ type: 'text', nullable: true })
+  motivationLetter: string;
+
   @Column({ default: 'new' })
   status: string;
 
