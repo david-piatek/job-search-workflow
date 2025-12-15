@@ -184,3 +184,17 @@ Then users can edit all job offer fields directly on the detail page
 And clicking save persists changes to the database via the backend API
 And visual feedback indicates when there are unsaved changes
 And the save button shows loading state during the save operation
+
+Scenario: Optimize GitLab CI with separate backend and frontend builds
+Given the pipeline builds both backend and frontend on every commit regardless of changes
+And this wastes CI minutes when only one component changed
+When docker-build job is split into docker-build-backend and docker-build-frontend
+And rules with changes detection are added to only trigger builds when relevant files change
+And backend build triggers on changes to apps/backend, Dockerfile.backend, or shared configs
+And frontend build triggers on changes to apps/frontend, Dockerfile.frontend, or shared configs
+And docker buildx bake targets backend-prod and frontend-prod separately
+And sync-deploy-repo job depends on both builds with optional: true
+Then backend only builds when backend files change
+And frontend only builds when frontend files change
+And CI minutes are saved by avoiding unnecessary builds
+And the pipeline completes faster when only one component changed
