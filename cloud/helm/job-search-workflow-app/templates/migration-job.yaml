@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migration-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}
+    component: migration
+  annotations:
+    "helm.sh/hook": pre-upgrade,pre-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        component: migration
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+        imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Running database migrations..."
+            cd /app
+            npm run migration:run
+            echo "Migrations completed successfully"
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-config
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi

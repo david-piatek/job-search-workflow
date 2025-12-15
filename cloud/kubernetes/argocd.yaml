@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://gitlab.com/dav.piatek/job-search-workflow-deploy.git
     targetRevision: HEAD
-    path: helm/job-scraper-app
+    path: helm/job-search-workflow-app
     helm:
       releaseName: job-search-workflow
       valueFiles:

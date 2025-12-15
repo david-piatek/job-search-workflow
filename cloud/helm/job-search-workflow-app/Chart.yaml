@@ -1,5 +1,5 @@
 apiVersion: v2
-name: job-scraper-app
+name: job-search-workflow-app
 description: A Helm chart for Job Search Workflow Application
 type: application
 version: 0.1.0

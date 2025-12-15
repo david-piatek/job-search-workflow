@@ -50,8 +50,8 @@ sync-deploy-repo:
   script:
     - |
       echo "Updating Helm values with tag ${CI_COMMIT_SHORT_SHA}"
-      yq -i ".image.backend.tag = \"${CI_COMMIT_SHORT_SHA}\"" cloud/helm/job-scraper-app/values-simple.yaml
-      yq -i ".image.frontend.tag = \"${CI_COMMIT_SHORT_SHA}\"" cloud/helm/job-scraper-app/values-simple.yaml
+      yq -i ".image.backend.tag = \"${CI_COMMIT_SHORT_SHA}\"" cloud/helm/job-search-workflow-app/values-simple.yaml
+      yq -i ".image.frontend.tag = \"${CI_COMMIT_SHORT_SHA}\"" cloud/helm/job-search-workflow-app/values-simple.yaml
       echo "Syncing to deploy repo..."
       mkdir -p /tmp/deploy-repo && cd /tmp/deploy-repo
       git init

@@ -155,3 +155,17 @@ And each line of the README is written using echo "content" >> README.md
 Then the GitLab CI YAML parser accepts the script configuration
 And the sync-deploy-repo job executes successfully
 And the README.md file is created in the deployment repository with proper formatting
+
+Scenario: Automated database migrations with Kubernetes pre-upgrade hooks
+Given the application uses TypeORM for database schema management
+And database schema changes need to be applied before new pods are deployed
+When a TypeORM datasource configuration is created at apps/backend/src/datasource.ts
+And migration scripts (migration:run, migration:generate, migration:revert) are added to backend package.json
+And a Kubernetes Job template is created at cloud/helm/job-search-workflow-app/templates/migration-job.yaml
+And the job uses Helm hooks "pre-upgrade,pre-install" with weight "-5"
+And the job runs "npm run migration:run" using the backend Docker image
+And the job has hook-delete-policy "before-hook-creation,hook-succeeded" to clean up completed jobs
+Then database migrations run automatically before every deployment
+And the migrations complete successfully before new pods start rolling out
+And failed migrations prevent the deployment from proceeding
+And the Helm chart name is updated from job-scraper-app to job-search-workflow-app for consistency
